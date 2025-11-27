@@ -29,7 +29,7 @@ def chunk_by_sentences(input_text: str, tokenizer: callable):
     return chunks, span_annotations
 
 
-def chunk_semantically(input_text: str, tokenizer, embedding_model_name: str, max_tokens: int | None = None):
+def chunk_semantically(input_text: str, tokenizer, embedding_model_name: str, max_tokens: int | None = None) -> tuple[list[str], list[tuple[int, int]]]:
     """
     Split the input text semantically using the Chunker class
     :param input_text: The text snippet to split semantically
@@ -44,7 +44,7 @@ def chunk_semantically(input_text: str, tokenizer, embedding_model_name: str, ma
     chunker = Chunker(chunking_strategy='semantic')
 
     # Get token spans from the semantic chunker
-    span_annotations = chunker.chunk_semantically(
+    span_annotations: list[tuple[int, int]] = chunker.chunk_semantically(
         input_text,
         tokenizer,
         embedding_model_name=embedding_model_name
@@ -52,7 +52,7 @@ def chunk_semantically(input_text: str, tokenizer, embedding_model_name: str, ma
 
     # If max_tokens is specified, split chunks that are too large
     if max_tokens:
-        final_spans = []
+        final_spans: list[tuple[int, int]] = []
         for start, end in span_annotations:
             chunk_size = end - start
             if chunk_size > max_tokens:
@@ -68,13 +68,13 @@ def chunk_semantically(input_text: str, tokenizer, embedding_model_name: str, ma
     # Convert spans to text chunks
     tokens = tokenizer.encode_plus(input_text, add_special_tokens=False)
     input_ids = tokens['input_ids']
-    chunks = [
+    chunks: list[str] = [
         tokenizer.decode(input_ids[start:end], skip_special_tokens=True)
         for start, end in span_annotations
     ]
 
     # Adjust spans to account for [CLS] token in model output
-    span_annotations_adjusted = [(start + 1, end + 1) for start, end in span_annotations]
+    span_annotations_adjusted: list[tuple[int, int]] = [(start + 1, end + 1) for start, end in span_annotations]
 
     return chunks, span_annotations_adjusted
 

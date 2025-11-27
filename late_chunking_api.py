@@ -18,22 +18,26 @@ model.eval()
 class ChunkRequest(BaseModel):
     doc_id: str
     text: str
+    chunk_mode: str | None = 'semantic'  # 'semantic' or 'sentences'
     chunk_size: int | None = None
 
 class ChunkResponse(BaseModel):
     doc_id: str
     model_name: str
     chunks: list[str]
-    embeddings: list[list[float]]  # JSON-friendly
-    span_annotations: list[tuple[int, int]]    # optional: token spans per chunk
+    embeddings: list[list[float]]
+    span_annotations: list[tuple[int, int]]
 
 @app.post("/chunk", response_model=ChunkResponse)
 def chunk_text(req: ChunkRequest):
     # Use chunk_size if provided, otherwise use max_tokens
 
     # Split into chunks and get span annotations (token counts per chunk)
-    # chunks, span_annotations = chunk_by_sentences(req.text, tokenizer)
-    chunks, span_annotations = chunk_semantically(req.text, tokenizer, model_name, req.chunk_size)
+    if req.chunk_mode == 'sentences':
+        chunks, span_annotations = chunk_by_sentences(req.text, tokenizer)
+    else:
+        # Default to semantic chunking
+        chunks, span_annotations = chunk_semantically(req.text, tokenizer, model_name, req.chunk_size)
 
     # Single full forward pass (late chunking)
     inputs = tokenizer(req.text, return_tensors='pt', max_length=JINA_MAX_LENGTH, truncation=True)
