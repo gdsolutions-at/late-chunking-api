@@ -137,10 +137,10 @@ class Chunker:
         self,
         text: str,
         tokenizer: 'AutoTokenizer',
-        chunking_strategy: str = None,
-        chunk_size: Optional[int] = None,
-        n_sentences: Optional[int] = None,
-        embedding_model_name: Optional[str] = None,
+        chunking_strategy: str,
+        chunk_size: Optional[int],
+        n_sentences: Optional[int],
+        embedding_model_name: Optional[str],
     ):
         chunking_strategy = chunking_strategy or self.chunking_strategy
         if chunking_strategy == "semantic":

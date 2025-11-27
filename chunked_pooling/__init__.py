@@ -29,6 +29,56 @@ def chunk_by_sentences(input_text: str, tokenizer: callable):
     return chunks, span_annotations
 
 
+def chunk_semantically(input_text: str, tokenizer, embedding_model_name: str, max_tokens: int | None = None):
+    """
+    Split the input text semantically using the Chunker class
+    :param input_text: The text snippet to split semantically
+    :param tokenizer: The tokenizer to use
+    :param embedding_model_name: The name of the embedding model for semantic splitting
+    :param max_tokens: Optional maximum token size per chunk. If a chunk exceeds this, it will be split further.
+    :return: A tuple containing the list of text chunks and their corresponding token spans
+    """
+    from .chunking import Chunker
+
+    # Create chunker instance with semantic strategy
+    chunker = Chunker(chunking_strategy='semantic')
+
+    # Get token spans from the semantic chunker
+    span_annotations = chunker.chunk_semantically(
+        input_text,
+        tokenizer,
+        embedding_model_name=embedding_model_name
+    )
+
+    # If max_tokens is specified, split chunks that are too large
+    if max_tokens:
+        final_spans = []
+        for start, end in span_annotations:
+            chunk_size = end - start
+            if chunk_size > max_tokens:
+                # Split this chunk into smaller pieces
+                for sub_start in range(start, end, max_tokens):
+                    sub_end = min(sub_start + max_tokens, end)
+                    if sub_end > sub_start:  # Only add non-empty spans
+                        final_spans.append((sub_start, sub_end))
+            else:
+                final_spans.append((start, end))
+        span_annotations = final_spans
+
+    # Convert spans to text chunks
+    tokens = tokenizer.encode_plus(input_text, add_special_tokens=False)
+    input_ids = tokens['input_ids']
+    chunks = [
+        tokenizer.decode(input_ids[start:end], skip_special_tokens=True)
+        for start, end in span_annotations
+    ]
+
+    # Adjust spans to account for [CLS] token in model output
+    span_annotations_adjusted = [(start + 1, end + 1) for start, end in span_annotations]
+
+    return chunks, span_annotations_adjusted
+
+
 def chunked_pooling(
     model_output: 'BatchEncoding', span_annotation: list, max_length=None
 ):
