@@ -1,0 +1,36 @@
+.venv/
+
+# macOS
+**/.DS_Store
+
+# IDE
+.vscode
+
+# Python tmp files
+__pycache__
+*.pyc
+
+# Python build and distribution
+dist/
+build/
+*.egg-info/
+
+# Tools and Lin// filepath: /Users/onesown/projects/late-chunking-api/late-chunking-api/.gitignore
+.venv/
+
+# macOS
+**/.DS_Store
+
+# IDE
+.vscode
+
+# Python tmp files
+__pycache__
+*.pyc
+
+# Python build and distribution
+dist/
+build/
+*.egg-info/
+
+# Tools and Lin
