@@ -3,6 +3,9 @@ from pydantic import BaseModel
 from transformers import AutoModel, AutoTokenizer
 from chunked_pooling import chunked_pooling, chunk_by_sentences, chunk_semantically
 import torch
+import gc
+from chonkie import LateChunker, RecursiveRules
+
 
 app = FastAPI()
 model_name = 'jinaai/jina-embeddings-v2-base-de'
@@ -50,6 +53,12 @@ def chunk_text(req: ChunkRequest):
     # Convert to plain lists for JSON
     embeddings = [emb.tolist() if hasattr(emb, "tolist") else list(emb) for emb in pooled]
 
+    # Clean up tensors to prevent memory leak
+    del output, inputs, pooled
+    gc.collect()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+
     return ChunkResponse(
         doc_id=req.doc_id,
         model_name=model_name,
@@ -57,3 +66,24 @@ def chunk_text(req: ChunkRequest):
         embeddings=embeddings,
         span_annotations=span_annotations
     )
+
+#@app.post("/chonkie", response_model=ChunkResponse)
+#def chonkie_late(req: ChunkRequest):
+#
+#    chunker = LateChunker(
+#    embedding_model=model_name,
+#    chunk_size=768)
+#
+#    chunks = chunker.chunk(req.text)
+#    chunk_texts = [str(chunk) for chunk in chunks]
+#    embeddings = [chunk.embedding for chunk in chunks]
+#    span_annotations = []
+#
+#
+#    return ChunkResponse(
+#        doc_id=req.doc_id,
+#        model_name=model_name,
+#        chunks=chunk_texts,
+#        embeddings=embeddings,
+#        span_annotations=span_annotations
+#    )

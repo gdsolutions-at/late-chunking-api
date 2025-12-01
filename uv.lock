@@ -618,6 +618,25 @@ wheels = [
 ]
 
 [[package]]
+name = "chonkie"
+version = "0.5.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "tokenizers" },
+    { name = "tqdm" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a7/5a/aefea8b6140795249c4554afe98350f108d0ea62ef981e4a2284e55c8df0/chonkie-0.5.1.tar.gz", hash = "sha256:baa86c21c1edadf0f5122b01e9ff1c1ea189dd0c2feaa8123a8e504f6a4d76cf", size = 54830, upload-time = "2025-03-01T10:32:10.333Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/24/b1/65819446c21f2664f6e147b5c058c9eb4cbb1600c9221943c2d53fa2461d/chonkie-0.5.1-py3-none-any.whl", hash = "sha256:91293b3c555ee953e84ad9c3dfbefae1673f64e61e49e3d4fc88dde6e10d05d2", size = 62652, upload-time = "2025-03-01T10:32:09.162Z" },
+]
+
+[package.optional-dependencies]
+st = [
+    { name = "numpy" },
+    { name = "sentence-transformers" },
+]
+
+[[package]]
 name = "click"
 version = "8.1.7"
 source = { registry = "https://pypi.org/simple" }
@@ -2111,6 +2130,7 @@ name = "late-chunking-api"
 version = "0.0.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "chonkie", extra = ["st"] },
     { name = "click" },
     { name = "datasets" },
     { name = "einops" },
@@ -2134,6 +2154,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "black", marker = "extra == 'dev'", specifier = "==23.3.0" },
+    { name = "chonkie", extras = ["st"], specifier = ">=0.5.1" },
     { name = "click", specifier = "==8.1.7" },
     { name = "datasets", specifier = "==2.19.1" },
     { name = "einops", specifier = "==0.6.1" },

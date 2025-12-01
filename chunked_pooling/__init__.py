@@ -73,7 +73,10 @@ def chunk_by_sentences(input_text: str, tokenizer: callable):
     return chunks, span_annotations
 
 
-def chunk_semantically(input_text: str, tokenizer, embedding_model_name: str, max_tokens: int | None = None):
+# Cache chunker instance to avoid loading the embedding model on every request
+_chunker_cache: dict = {}
+
+def chunk_semantically(input_text: str, tokenizer, embedding_model_name: str, max_tokens: int | None = None) -> tuple[list[str], list[tuple[int, int]]]:
     """
     Split the input text semantically using the Chunker class
     :param input_text: The text snippet to split semantically
@@ -84,8 +87,10 @@ def chunk_semantically(input_text: str, tokenizer, embedding_model_name: str, ma
     """
     from .chunking import Chunker
 
-    # Create chunker instance with semantic strategy
-    chunker = Chunker(chunking_strategy='semantic')
+    # Reuse cached chunker instance to avoid memory leak
+    if 'semantic' not in _chunker_cache:
+        _chunker_cache['semantic'] = Chunker(chunking_strategy='semantic')
+    chunker = _chunker_cache['semantic']
 
     # Get token spans from the semantic chunker
     span_annotations = chunker.chunk_semantically(

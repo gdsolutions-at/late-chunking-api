@@ -12,6 +12,7 @@ dependencies = [
     "click==8.1.7",
     "einops==0.6.1",
     "fastapi[standard]",
+    "chonkie[st]>=0.5.1",
 ]
 version = "0.0.0"
 
